@@ -39,6 +39,10 @@ python main.py WORD-LIST CIPHERTEXT
 python main.py data/word-list/eng-gb.txt data/ciphertext/morland-page01.txt
 ```
 
+## Method
+
+TODO
+
 ## References
 
 - Michel, J.-B., Shen, Y. K., Aiden, A. P., Veres, A., Gray, M. K., The Google Books Team, Pickett, J. P., Hoiberg, D., Clancy, D., Norvig, P., Orwant, J., Pinker, S., Nowak, M. A., & Aiden, E. L. (2011). Quantitative analysis of culture using millions of digitized books. *Science*, 331(6014), 176-182. <https://doi.org/10.1126/science.1199644>
