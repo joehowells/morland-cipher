@@ -2,7 +2,7 @@
 
 Breaking Sir Samuel Morland's New Method of Cryptography
 
-This project is inspired by the National Archives blog post "[Hidden in plain sight: an undeciphered letter from Louis XIV’s France](https://www.nationalarchives.gov.uk/explore-the-collection/the-collection-blog/undeciphered-letter-from-louis-xivs-france/)". The post highlights an enciphered message that William Perwich, an English diplomat, sent to the court of Charles II in 1670.
+This project is inspired by the National Archives blog post "[Hidden in plain sight: an undeciphered letter from Louis XIV’s France](https://www.nationalarchives.gov.uk/explore-the-collection/the-collection-blog/undeciphered-letter-from-louis-xivs-france/)". The post highlights an enciphered message from 1670 that William Perwich, an English diplomat, sent to Lord Arlington, a close advisor to Charles II.
 
 The method of encryption is not known, but it could be one of the methods published by Sir Samuel Morland in his paper "[A New Method of Cryptography](https://archive.org/details/bim_early-english-books-1641-1700_a-new-method-of-cryptogr_morland-sir-samuel_1666)", a few years earlier in 1666.
 
