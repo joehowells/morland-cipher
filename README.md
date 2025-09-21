@@ -39,6 +39,12 @@ python main.py WORD-LIST CIPHERTEXT
 python main.py data/word-list/eng-gb.txt data/ciphertext/morland-page01.txt
 ```
 
+## References
+
+- Michel, J.-B., Shen, Y. K., Aiden, A. P., Veres, A., Gray, M. K., The Google Books Team, Pickett, J. P., Hoiberg, D., Clancy, D., Norvig, P., Orwant, J., Pinker, S., Nowak, M. A., & Aiden, E. L. (2011). Quantitative analysis of culture using millions of digitized books. *Science*, 331(6014), 176-182. <https://doi.org/10.1126/science.1199644>
+- Morland, S. (1666). A New Method of Cryptography. *Archive.org*. <https://archive.org/details/bim_early-english-books-1641-1700_a-new-method-of-cryptogr_morland-sir-samuel_1666/>
+- Selman, R. (2025, August 4). Undeciphered letter from Louis XIV’s France. *The National Archives*. <https://www.nationalarchives.gov.uk/explore-the-collection/the-collection-blog/undeciphered-letter-from-louis-xivs-france/>
+
 ## License
 
 The code in this repository is licensed under the MIT license (see `LICENSE`).
