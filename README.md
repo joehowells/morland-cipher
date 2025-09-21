@@ -17,8 +17,8 @@ However, by using techniques developed since 1666, we can break Morland's method
 Clone the repository and install its dependencies:
 
 ```bash
-git clone <repository-url>
-cd <repository-directory>
+git clone https://github.com/joehowells/morland-cipher.git
+cd morland-cipher
 pip install -r requirements.txt
 ```
 
