@@ -2,6 +2,33 @@
 
 Breaking Sir Samuel Morland's New Method of Cryptography
 
+## Installation
+
+Clone the repository and install its dependencies:
+
+```bash
+git clone <repository-url>
+cd <repository-directory>
+pip install -r requirements.txt
+```
+
+## Usage
+
+Run the main script from the shell to decrypt the provided ciphertext using the provided word list:
+
+```bash
+python main.py WORD-LIST CIPHERTEXT
+```
+
+- `WORD-LIST`: Path to a word-frequency list (e.g., `data/word-list/eng-gb.txt`).
+- `CIPHERTEXT`: Path to a ciphertext file (e.g., `data/ciphertext/morland-page01.txt`). Tokens in the ciphertext file should be separated by spaces to detect multi-character tokens. Line breaks are treated as spaces but otherwise do not matter.
+
+## Example
+
+```bash
+python main.py data/word-list/eng-gb.txt data/ciphertext/morland-page01.txt
+```
+
 ## License
 
 The code in this repository is licensed under the MIT license (see `LICENSE`).
