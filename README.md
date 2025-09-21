@@ -43,7 +43,14 @@ python main.py data/word-list/eng-gb.txt data/ciphertext/morland-page01.txt
 
 ## Method
 
-TODO
+TODO: Expand bullet points to complete section
+
+- Summarise Morland's method
+- Example grid
+- Quantify how likely columns are to follow one another based on log-OE
+- Build digraph of columns (nodes) and column pairs (edges)
+- Find path that maximises log-OE using TSP solver
+- Repeat for all possible combinations of column and null count
 
 ## References
 
