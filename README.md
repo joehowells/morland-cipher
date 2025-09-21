@@ -22,6 +22,8 @@ cd <repository-directory>
 pip install -r requirements.txt
 ```
 
+Note: This project was developed in Python 3.13. Older versions may work but have not been checked.
+
 ## Usage
 
 Run the main script from the shell to decrypt the provided ciphertext using the provided word list:
