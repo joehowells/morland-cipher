@@ -1,3 +1,4 @@
+import collections
 import functools
 import itertools
 import math
@@ -56,8 +57,7 @@ def log_observed_expected(n: int) -> dict[NGram, float]:
 
 @functools.cache
 def ngram_count(n: int) -> dict[NGram, int]:
-    all_ngrams = itertools.product(string.ascii_uppercase, repeat=n)
-    result = {ngram: 1 for ngram in all_ngrams}
+    result = collections.defaultdict(int)
 
     with open(WORD_LIST, encoding="utf-8") as file:
         for line in file:
@@ -65,4 +65,4 @@ def ngram_count(n: int) -> dict[NGram, int]:
             for ngram in sliding_window(word, n):
                 result[ngram] += int(count)
 
-    return result
+    return dict(result)
