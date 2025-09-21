@@ -2,6 +2,16 @@
 
 Breaking Sir Samuel Morland's New Method of Cryptography
 
+This project is inspired by the National Archives blog post "[Hidden in plain sight: an undeciphered letter from Louis XIV’s France](https://www.nationalarchives.gov.uk/explore-the-collection/the-collection-blog/undeciphered-letter-from-louis-xivs-france/)". The post highlights an enciphered message that William Perwich, an English diplomat, sent to the court of Charles II in 1670.
+
+The method of encryption is not known, but it could be one of the methods published by Sir Samuel Morland in his paper "[A New Method of Cryptography](https://archive.org/details/bim_early-english-books-1641-1700_a-new-method-of-cryptogr_morland-sir-samuel_1666)", a few years earlier in 1666.
+
+While Morland also presents methods that utilise non-rectangular patterns, he focuses on methods that are based on columnar transposition of a rectangular grid.
+
+To illustrate the difficulty of deciphering the message without the key, Morland correctly states that encrypting a message of 81 characters on a 3x27 grid results in 27! (more than ten octillion) possible keys.
+
+However, by using techniques developed since 1666, we can break Morland's method and possibly decrypt Perwich's message.
+
 ## Installation
 
 Clone the repository and install its dependencies:
