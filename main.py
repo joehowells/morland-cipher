@@ -77,47 +77,6 @@ def decrypt(seq: Sequence[str], key: Sequence[int], method: Method = 1) -> list[
     return [grid[row][col] for row in range(num_rows) for col in range(num_cols)]
 
 
-def encrypt(seq: Sequence[str], key: Sequence[int], method: Method = 1) -> list[str]:
-    assert sorted(key) == list(range(len(key)))
-    num_cols = len(key)
-    num_rows = len(seq) // num_cols
-
-    grid = [
-        [seq[row * num_cols + col] for col in range(num_cols)]
-        for row in range(num_rows)
-    ]
-    result = ["" for _ in range(num_rows) for _ in range(num_cols)]
-
-    match method:
-        case 1:
-            # Descending
-            for j, col in enumerate(key):
-                for i, row in enumerate(range(num_rows)):
-                    k = row
-                    result[col * num_rows + k] = grid[i][j]
-        case 2:
-            # Ascending
-            for j, col in enumerate(key):
-                for i, row in enumerate(range(num_rows)):
-                    k = num_rows - row - 1
-                    result[col * num_rows + k] = grid[i][j]
-        case 3:
-            # Descending then ascending
-            for j, col in enumerate(key):
-                for i, row in enumerate(range(num_rows)):
-                    k = (num_rows - row - 1) if (col % 2 > 0) else row
-                    result[col * num_rows + k] = grid[i][j]
-
-        case 4:
-            # Ascending then descending
-            for j, col in enumerate(key):
-                for i, row in enumerate(range(num_rows)):
-                    k = (num_rows - row - 1) if (col % 2 <= 0) else row
-                    result[col * num_rows + k] = grid[i][j]
-
-    return result
-
-
 def find_best_key(
     text: Sequence[str], num_columns: int, alternate: bool = False
 ) -> tuple[float, list[int]]:
