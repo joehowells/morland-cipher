@@ -1,10 +1,8 @@
 import itertools
-from typing import Literal, Sequence
-
-Method = Literal[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+from typing import Sequence
 
 
-def decrypt(seq: Sequence[str], key: Sequence[int], method: Method = 1) -> list[str]:
+def decrypt(seq: Sequence[str], key: Sequence[int], method: int = 1) -> list[str]:
     assert sorted(key) == list(range(len(key)))
     num_cols = len(key)
     num_rows = len(seq) // num_cols

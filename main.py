@@ -6,7 +6,7 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 from itertools import pairwise
 from operator import itemgetter
 from pathlib import Path
-from typing import Literal, Sequence, TypedDict, TypeVar, cast
+from typing import Sequence, TypedDict, TypeVar, cast
 
 from ortools.constraint_solver import pywrapcp, routing_enums_pb2
 
@@ -14,8 +14,6 @@ from decrypt import decrypt
 from ngram import log_observed_expected, sliding_window
 
 T = TypeVar("T")
-
-Method = Literal[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
 
 class Result(TypedDict):
