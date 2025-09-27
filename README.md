@@ -43,6 +43,8 @@ python main.py data/word-list/eng-gb.txt data/ciphertext/morland-page01.txt
 
 ## Method
 
+**Note:** The values shown in this section are representative of the code at the time of writing, but may not be exact in future revisions.
+
 ### Morland's *New Method of Cryptography*
 
 Morland's method is a type of columnar transposition cipher where the cipher parameters are encoded into the message itself. The basic procedure is:
