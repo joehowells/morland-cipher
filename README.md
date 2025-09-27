@@ -2,7 +2,7 @@
 
 Breaking Sir Samuel Morland's New Method of Cryptography
 
-This project is inspired by the National Archives blog post "[Hidden in plain sight: an undeciphered letter from Louis XIV’s France](https://www.nationalarchives.gov.uk/explore-the-collection/the-collection-blog/undeciphered-letter-from-louis-xivs-france/)". The post highlights an enciphered message from 1670 that William Perwich, an English diplomat, sent to Lord Arlington, a close advisor to Charles II.
+This project is inspired by the National Archives blog post "[Hidden in plain sight: an undeciphered letter from Louis XIV's France](https://www.nationalarchives.gov.uk/explore-the-collection/the-collection-blog/undeciphered-letter-from-louis-xivs-france/)". The post highlights an enciphered message from 1670 that William Perwich, an English diplomat, sent to Lord Arlington, a close advisor to Charles II.
 
 The method of encryption is not known, but it could be one of the methods published by Sir Samuel Morland in his paper "[A New Method of Cryptography](https://archive.org/details/bim_early-english-books-1641-1700_a-new-method-of-cryptogr_morland-sir-samuel_1666)", a few years earlier in 1666.
 
@@ -43,18 +43,18 @@ python main.py data/word-list/eng-gb.txt data/ciphertext/morland-page01.txt
 
 ## Method
 
-### Morland's New Method of Cryptography
+### Morland's *New Method of Cryptography*
 
-Morland's method is a type of columnar transposition cipher where the parameters of the cipher are encoded into the message itself. The basic procedure is:
+Morland's method is a type of columnar transposition cipher where the cipher parameters are encoded into the message itself. The basic procedure is:
 
 1. Write the plaintext message onto a rectangular grid.
 1. Complete the grid with "nulls" (dummy letters).
 1. Scramble the columns according to a key shared with the recipient (Methods 1–4).
 1. Write out the grid one column at a time.
 
-For decryption, this process is carried out in reverse, assuming that the key is known.
+For decryption, this procedure is carried out in reverse, assuming that the key is known.
 
-Rather than using a fixed number of columns based on a single key, Morland's method involves sharing a document with the recipient ahead of time: the Clavis Universalis. This document contains pre-agreed keys for grids that range from 1 to 34 columns. The number of columns and the number of nulls are encoded into the message before the start of the grid.
+Rather than relying on a fixed number of columns derived from a single key, Morland's method requires the sender and recipient to share a reference document in advance: the *Clavis Universalis* ("universal key"). This document contains a set of pre‑agreed keys for grids ranging from 1 to 34 columns. In addition to the transposed text, the ciphertext encodes the grid dimensions, indicating which key to use.
 
 ### Finding the Key for Given Parameters
 
@@ -62,13 +62,13 @@ Morland presents the following ciphertext as an example of Method 1:
 
 > s t l e l i e c c y g t s d o t s l f s e F x s U o d W i l M a t l k e h r f T c e s l o T W O r a p A n c a n o o n i l A a o i h t E u o t p i i a h i d w o n
 
-For the purpose of finding the best key for certain inputs, we will assume that we know there are nine columns and zero nulls.
+For the purpose of finding the best key for certain inputs, we will assume that there are nine columns and zero nulls.
 
 First, we split the string into nine columns:
 
 > S T L E L I E C C – Y G T S D O T S L – F S E F X S U O D – W I L M A T L K E – H R F T C E S L O – T W O R A P A N C – A N O O N I L A A – O I H T E U O T P – I I A H I D W O N
 
-Then arrange these into a grid:
+We then populate our grid:
 
 ```text
 1 2 3 4 5 6 7 8 9
@@ -83,15 +83,17 @@ C S O K L N A T O
 C L D E O C A P N
 ```
 
-The aim is to rearrange these columns to reveal the plaintext. In this case there are 9! (362,880) possible keys. This number is small enough that brute force is feasible, but it does not scale to larger numbers of columns. The Clavis Universalis presents keys for grids as large as 34 columns, so brute force is no good.
+The aim is to rearrange these columns to reveal the plaintext.
 
-However, we can quantify which columns are most likely to follow others using frequency analysis.
+In this case, there are nine columns and 9! (362,880) possible keys. This number is small enough that a brute-force search is feasible, but the approach does not scale well as the number of columns increases. The *Clavis Universalis* contains keys for grids with up to 34 columns, making brute‑force search impractical.
+
+However, we can use frequency analysis to reveal the most likely column order, and thus the most likely key.
 
 ### Frequency Analysis
 
 Frequency analysis is a common technique used to break ciphers. As a simple example, when breaking a substitution cipher with English plaintext, the most common ciphertext letter is likely to map to the letter "E".
 
-More generally, we can assign probabilities to the letters of the alphabet based on how frequently they appear in training data. This project uses word-frequency lists that are based on a dataset constructed by Google for use in its Ngram Viewer. Here are the most and least common letters extracted from the list for British English:
+More generally, we can assign probabilities to the letters of the alphabet based on how frequently they appear in a training dataset. This project uses word-frequency lists derived from a dataset constructed by Google for use in its Ngram Viewer. Here are the most common letters extracted from the list for British English:
 
 ```text
 E  0.125
@@ -154,7 +156,7 @@ Mean  -0.953    Mean   0.435
 
 The right-hand side has the higher total, so the transition 1→4 is more likely than transition 1→2.
 
-We can repeat this process for all possible transitions to generate a matrix where larger numbers indicate more likely transitions.
+We can repeat this process for all possible transitions to build a matrix where larger numbers indicate more likely transitions.
 
 ```text
         1      2      3      4      5      6      7      8      9
@@ -173,7 +175,7 @@ These techniques are standard in the analysis of classical ciphers and are widel
 
 ### Finding the Key
 
-The task is to identify the column ordering (key) that maximises the sum of terms in the transition matrix.
+Given the matrix above, the aim is now to identify the column ordering (key) that maximises the sum of the selected terms in the matrix.
 
 This problem can be modelled as a directed graph: the nodes represent columns, the edges represent possible transitions between them, and the edge weights correspond to the (log‑OE) likelihood of each transition. The most likely key then corresponds to the path that visits every node exactly once while maximising the total edge weight.
 
@@ -227,7 +229,7 @@ Now that we have an approach for determining the most likely key for each (numbe
 - Gaines, Helen Fouché. *Elementary Cryptanalysis*. Boston: American Photographic Publishing Co., 1939. Project Gutenberg, 2025. <https://www.gutenberg.org/ebooks/75074>.
 - Michel, Jean‑Baptiste, Yuan Kui Shen, Aviva Presser Aiden, et al. "Quantitative Analysis of Culture Using Millions of Digitized Books." *Science* 331, no. 6014 (2011): 176–82. <https://doi.org/10.1126/science.1199644>.
 - Morland, Sir Samuel. *A New Method of Cryptography*. 1666. Early English Books, 1641–1700. Internet Archive. Accessed September 21, 2025. <https://archive.org/details/bim_early-english-books-1641-1700_a-new-method-of-cryptogr_morland-sir-samuel_1666/>.
-- Selman, Ruth. "Hidden in Plain Sight: An Undeciphered Letter from Louis XIV’s France." *The Collection Blog*. August 4, 2025. Accessed September 21, 2025. <https://www.nationalarchives.gov.uk/explore-the-collection/the-collection-blog/undeciphered-letter-from-louis-xivs-france/>.
+- Selman, Ruth. "Hidden in Plain Sight: An Undeciphered Letter from Louis XIV's France." *The Collection Blog*. August 4, 2025. Accessed September 21, 2025. <https://www.nationalarchives.gov.uk/explore-the-collection/the-collection-blog/undeciphered-letter-from-louis-xivs-france/>.
 
 ## License
 
