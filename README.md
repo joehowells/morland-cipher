@@ -58,7 +58,7 @@ For decryption, this procedure is carried out in reverse, assuming that the key 
 
 Rather than relying on a fixed number of columns derived from a single key, Morland's method requires the sender and recipient to share a reference document in advance: the *Clavis Universalis* ("universal key"). This document contains a set of pre‑agreed keys for grids ranging from 1 to 34 columns. In addition to the transposed text, the ciphertext encodes the grid dimensions, indicating which key to use.
 
-### Finding the Key for Given Parameters
+### Constructing the Grid
 
 Morland presents the following ciphertext as an example of Method 1:
 
