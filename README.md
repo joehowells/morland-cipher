@@ -118,13 +118,7 @@ AN  0.020
 We could use these probabilities as-is, but that would not give us the full picture. Bigrams like "EE" are frequent partly because the letter "E" itself is frequent. In other words, if we chose letters at random, we would expect to see "EE" more often simply because there are more "E"s to draw from. We can eliminate this effect by dividing the probability of observing "EE" by the probability of drawing two "E"s at random. This is known as the observed–expected (OE) ratio.
 
 $$
-OE\left(\text{AT}\right)
-=
-\frac{P\left(\text{AT}\right)}{P\left(\text{A} \cap \text{T} \right)}
-=
-\frac{P\left(\text{AT}\right)}{P\left(\text{A}\right) \cdot P\left(\text{T}\right)}
-=
-\frac{0.015}{0.080 \cdot 0.094}=1.994
+OE\left(\text{AT}\right) = \frac{P\left(\text{AT}\right)}{P\left(\text{A} \cap \text{T} \right)} = \frac{P\left(\text{AT}\right)}{P\left(\text{A}\right) \cdot P\left(\text{T}\right)} = \frac{0.015}{0.080 \cdot 0.094} = 1.994
 $$
 
 So, "AT" appears about twice as often in the dataset as it would if letters were chosen at random.
@@ -132,11 +126,7 @@ So, "AT" appears about twice as often in the dataset as it would if letters were
 In practice, we perform these calculations in log-space, where multiplication and division become addition and subtraction.
 
 $$
-\log OE\left(\text{AT}\right)
-=
-\log P\left(\text{AT}\right)
-- \log P\left(\text{A}\right)
-- \log P\left(\text{T}\right)
+\log OE\left(\text{AT}\right)=\log P\left(\text{AT}\right) - \log P\left(\text{A}\right) - \log P\left(\text{T}\right)
 $$
 
 To compare columns, we can put them next to one another and sum the log-OE scores of the bigrams formed from each row of the grid.
