@@ -169,6 +169,8 @@ We can repeat this process for all possible transitions to generate a matrix whe
  9  0.621 -1.630 -1.294 -1.918 -0.885 -1.565 -0.726 -1.312    N/A
 ```
 
+These techniques are standard in the analysis of classical ciphers and are widely taught in academic courses on cryptography.
+
 ### Finding the Key
 
 The task is to identify the column ordering (key) that maximises the sum of terms in the transition matrix.
@@ -222,6 +224,7 @@ Now that we have an approach for determining the most likely key for each (numbe
 ## Bibliography
 
 - Furnon, Vincent, and Laurent Perron. *OR-Tools Routing Library*. Version 9.14. Google, June 19, 2025. <https://developers.google.com/optimization/routing/>.
+- Gaines, Helen Fouché. *Elementary Cryptanalysis*. Boston: American Photographic Publishing Co., 1939. Project Gutenberg, 2025. <https://www.gutenberg.org/ebooks/75074>.
 - Michel, Jean‑Baptiste, Yuan Kui Shen, Aviva Presser Aiden, et al. "Quantitative Analysis of Culture Using Millions of Digitized Books." *Science* 331, no. 6014 (2011): 176–82. <https://doi.org/10.1126/science.1199644>.
 - Morland, Sir Samuel. *A New Method of Cryptography*. 1666. Early English Books, 1641–1700. Internet Archive. Accessed September 21, 2025. <https://archive.org/details/bim_early-english-books-1641-1700_a-new-method-of-cryptogr_morland-sir-samuel_1666/>.
 - Selman, Ruth. "Hidden in Plain Sight: An Undeciphered Letter from Louis XIV’s France." *The Collection Blog*. August 4, 2025. Accessed September 21, 2025. <https://www.nationalarchives.gov.uk/explore-the-collection/the-collection-blog/undeciphered-letter-from-louis-xivs-france/>.
