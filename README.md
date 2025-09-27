@@ -52,12 +52,12 @@ TODO: Expand bullet points to complete section
 - Find path that maximises log-OE using TSP solver
 - Repeat for all possible combinations of column and null count
 
-## References
+## Bibliography
 
-- Furnon, V., & Perron, L. (2025). OR-Tools routing library (v9.14). Google. <https://developers.google.com/optimization/routing/>
-- Michel, J.-B., Shen, Y. K., Aiden, A. P., Veres, A., Gray, M. K., The Google Books Team, Pickett, J. P., Hoiberg, D., Clancy, D., Norvig, P., Orwant, J., Pinker, S., Nowak, M. A., & Aiden, E. L. (2011). Quantitative analysis of culture using millions of digitized books. *Science*, 331(6014), 176-182. <https://doi.org/10.1126/science.1199644>
-- Morland, S. (1666). A New Method of Cryptography. *Archive.org*. <https://archive.org/details/bim_early-english-books-1641-1700_a-new-method-of-cryptogr_morland-sir-samuel_1666/>
-- Selman, R. (2025, August 4). Undeciphered letter from Louis XIV’s France. *The National Archives*. <https://www.nationalarchives.gov.uk/explore-the-collection/the-collection-blog/undeciphered-letter-from-louis-xivs-france/>
+- Furnon, Vincent, and Laurent Perron. *OR-Tools Routing Library*. Version 9.14. Google, June 19, 2025. <https://developers.google.com/optimization/routing/>.
+- Michel, Jean‑Baptiste, Yuan Kui Shen, Aviva Presser Aiden, et al. "Quantitative Analysis of Culture Using Millions of Digitized Books." *Science* 331, no. 6014 (2011): 176–82. <https://doi.org/10.1126/science.1199644>.
+- Morland, Sir Samuel. *A New Method of Cryptography*. 1666. Early English Books, 1641–1700. Internet Archive. Accessed September 21, 2025. <https://archive.org/details/bim_early-english-books-1641-1700_a-new-method-of-cryptogr_morland-sir-samuel_1666/>.
+- Selman, Ruth. "Hidden in Plain Sight: An Undeciphered Letter from Louis XIV’s France." *The Collection Blog*. August 4, 2025. Accessed September 21, 2025. <https://www.nationalarchives.gov.uk/explore-the-collection/the-collection-blog/undeciphered-letter-from-louis-xivs-france/>.
 
 ## License
 
