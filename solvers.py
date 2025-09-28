@@ -1,9 +1,11 @@
 import itertools
+from typing import Callable
 
 from ortools.constraint_solver import pywrapcp, routing_enums_pb2
 from ortools.sat.python import cp_model
 
 Arc = tuple[int, int]
+Solver = Callable[[dict[Arc, int], int], list[int]]
 
 
 def solve_tsp_routing(cost: dict[Arc, int], num_columns: int) -> list[int]:

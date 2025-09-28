@@ -12,7 +12,7 @@ from typing import Sequence, TypedDict
 
 from decrypt import decrypt
 from ngram import NGramTable, load_tables, sliding_window
-from solvers import solve_tsp_routing
+from solvers import Solver, solve_tsp_cp_sat, solve_tsp_routing
 
 DATA_PATH = Path(__file__).parent.joinpath("data/word-list")
 
@@ -32,6 +32,7 @@ class Result(TypedDict):
 @dataclass
 class Context:
     ciphertext: list[str]
+    solver: Solver
     tables: dict[int, NGramTable]
     tokens: list[str]
 
@@ -42,6 +43,9 @@ context: Context | None = None
 def find_best_key(
     text: Sequence[str], num_columns: int, alternate: bool = False
 ) -> tuple[float, list[int]]:
+    global context
+    assert context is not None
+
     all_pairs = itertools.product(range(num_columns), repeat=2)
     all_score = {
         (i, j): score_column_pair(text, num_columns, i, j, alternate)
@@ -49,7 +53,7 @@ def find_best_key(
     }
     max_score = max(all_score.values())
     cost = {key: -int((val - max_score) * 1_000) for key, val in all_score.items()}
-    path = solve_tsp_routing(cost, num_columns)
+    path = context.solver(cost, num_columns)
 
     rows = list(pairwise(path))
     mean_score = sum(all_score[i, j] for i, j in rows) / len(rows)
@@ -153,8 +157,17 @@ def init_worker(args: argparse.Namespace) -> None:
         for c in ciphertext
     ]
 
+    match args.solver:
+        case "routing":
+            solver = solve_tsp_routing
+        case "cp-sat":
+            solver = solve_tsp_cp_sat
+        case _:
+            raise RuntimeError("unreachable")
+
     context = Context(
         ciphertext=ciphertext,
+        solver=solver,
         tables=tables,
         tokens=tokens,
     )
@@ -223,6 +236,14 @@ def parse_args() -> argparse.Namespace:
         "ciphertext",
         type=Path,
         help="path to the ciphertext",
+    )
+    parser.add_argument(
+        "-s",
+        "--solver",
+        default="routing",
+        type=str,
+        choices=["routing", "cp-sat"],
+        help="choose TSP solver",
     )
     parser.add_argument(
         "-w",
