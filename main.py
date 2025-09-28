@@ -169,6 +169,7 @@ def main() -> None:
             sort_keys=True,
         )
     )
+    print(f"Results saved to {path.name}")
 
 
 def init_worker(args: argparse.Namespace) -> None:
