@@ -4,10 +4,11 @@ import math
 import re
 import sys
 from concurrent.futures import ProcessPoolExecutor, as_completed
+from dataclasses import dataclass
 from itertools import pairwise
 from operator import itemgetter
 from pathlib import Path
-from typing import Sequence, TypedDict, cast
+from typing import Sequence, TypedDict
 
 from ortools.constraint_solver import pywrapcp, routing_enums_pb2
 
@@ -27,17 +28,14 @@ class Result(TypedDict):
     plaintokScore: float
 
 
-tables: dict[int, NGramTable] | None = None
+@dataclass
+class Context:
+    ciphertext: list[str]
+    tables: dict[int, NGramTable]
+    tokens: list[str]
 
-CIPHERTEXT = cast(list[str], re.findall(r"\S+", Path(sys.argv[2]).read_text()))
-TOKENS = [
-    (
-        x.group(1).upper()
-        if (x := re.match(r"^([A-Za-z])[^A-Za-z]*$", c)) is not None
-        else "_"
-    )
-    for c in CIPHERTEXT
-]
+
+context: Context | None = None
 
 
 def find_best_key(
@@ -64,10 +62,10 @@ def score_column_pair(
     j: int,
     alternate: bool = False,
 ):
-    global tables
-    assert tables is not None
+    global context
+    assert context is not None
 
-    log_obs_exp = tables[2]
+    log_obs_exp = context.tables[2]
 
     xs = text[i::num_columns]
     ys = text[j::num_columns]
@@ -88,12 +86,12 @@ def score_column_pair(
 
 
 def score_sequence(text: Sequence[str], m: int) -> float:
-    global tables
-    assert tables is not None
+    global context
+    assert context is not None
 
     total = 0.0
     for n in (3, 5):
-        log_obs_exp = tables[n]
+        log_obs_exp = context.tables[n]
         for ngram in sliding_window(text, n):
             value = log_obs_exp[ngram]
             if not math.isnan(value):
@@ -140,16 +138,21 @@ def solve_tsp(cost: dict[tuple[int, int], int], num_columns: int) -> list[int]:
 
 
 def main() -> None:
+    with open(sys.argv[2], encoding="utf-8") as file:
+        ciphertext = file.read().strip().split()
+
     tasks = [
         (key_size, shift)
         for key_size in range(2, 35)
         for shift in range(key_size + 1)
-        if (len(TOKENS) - shift) // key_size > 0
+        if (len(ciphertext) - shift) // key_size > 0
     ]
     total = len(tasks)
 
     result_list: list[Result] = []
-    with ProcessPoolExecutor(initializer=init_worker, initargs=(sys.argv[1],)) as exe:
+    with ProcessPoolExecutor(
+        initializer=init_worker, initargs=(sys.argv[1], sys.argv[2])
+    ) as exe:
         futures = [exe.submit(worker, key_size, shift) for key_size, shift in tasks]
 
         for i, future in enumerate(as_completed(futures), 1):
@@ -167,18 +170,40 @@ def main() -> None:
     )
 
 
-def init_worker(path: str) -> None:
-    global tables
-    assert tables is None
-    with open(path, encoding="utf-8") as file:
+def init_worker(word_list_path: str, ciphertext_path: str) -> None:
+    global context
+    assert context is None
+
+    with open(word_list_path, encoding="utf-8") as file:
         tables = load_tables(file)
+
+    with open(ciphertext_path, encoding="utf-8") as file:
+        ciphertext = file.read().strip().split()
+
+    tokens = [
+        (
+            x.group(1).upper()
+            if (x := re.match(r"^([A-Za-z])[^A-Za-z]*$", c)) is not None
+            else "_"
+        )
+        for c in ciphertext
+    ]
+
+    context = Context(
+        ciphertext=ciphertext,
+        tables=tables,
+        tokens=tokens,
+    )
 
 
 def worker(num_cols: int, num_nulls: int) -> list[Result]:
-    num_rows = (len(TOKENS) - num_nulls) // (num_cols)
+    global context
+    assert context is not None
+
+    num_rows = (len(context.tokens) - num_nulls) // (num_cols)
 
     text2 = [
-        TOKENS[col * num_rows + row + num_nulls]
+        context.tokens[col * num_rows + row + num_nulls]
         for row in range(num_rows)
         for col in range(num_cols)
     ]
@@ -200,13 +225,13 @@ def worker(num_cols: int, num_nulls: int) -> list[Result]:
                 p = list(range(num_cols))
 
         plaintext = decrypt(
-            CIPHERTEXT[num_nulls:],
+            context.ciphertext[num_nulls:],
             key=p,
             method=method,
         )
 
         plaintok = decrypt(
-            TOKENS[num_nulls:],
+            context.tokens[num_nulls:],
             key=p,
             method=method,
         )
@@ -221,7 +246,7 @@ def worker(num_cols: int, num_nulls: int) -> list[Result]:
                 "numNulls": num_nulls,
                 "plaintext": "".join(plaintext),
                 "plaintok": "".join(plaintok),
-                "plaintokScore": score_sequence(plaintok, len(TOKENS)),
+                "plaintokScore": score_sequence(plaintok, len(context.tokens)),
             }
         )
 
