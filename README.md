@@ -29,16 +29,16 @@ Note: This project was developed in Python 3.13. Older versions may work but hav
 Run the main script from the shell to decrypt the provided ciphertext using the provided word list:
 
 ```bash
-python main.py WORD-LIST CIPHERTEXT
+python main.py [-h] [-w WORDLIST] ciphertext
 ```
 
-- `WORD-LIST`: Path to a word-frequency list (e.g., `data/word-list/eng-gb.txt`).
-- `CIPHERTEXT`: Path to a ciphertext file (e.g., `data/ciphertext/morland-page01.txt`). Tokens in the ciphertext file should be separated by spaces to detect multi-character tokens. Line breaks are treated as spaces but otherwise do not matter.
+- `WORDLIST`: Path to a word-frequency list (default `data/word-list/eng-gb.txt`).
+- `ciphertext`: Path to a ciphertext file (e.g., `data/ciphertext/morland-page01.txt`). Tokens in the ciphertext file should be separated by spaces to detect multi-character tokens. Line breaks are treated as spaces but otherwise do not matter.
 
 ## Example
 
 ```bash
-python main.py data/word-list/eng-gb.txt data/ciphertext/morland-page01.txt
+python main.py data/ciphertext/morland-page01.txt
 ```
 
 ## Method
@@ -105,7 +105,7 @@ O  0.077
 I  0.074
 ```
 
-We can also do this for combinations of two letters (bigrams):
+This shows that about one in every eight letters of English text is an "E". We can also do this for combinations of two letters (bigrams):
 
 ```text
 TH  0.038
@@ -146,7 +146,7 @@ N L   -1.490    N E   -0.286
 Mean  -0.953    Mean   0.435 
 ```
 
-The right-hand side has the higher total, so the transition 1→4 is more likely than transition 1→2.
+The right-hand side has the higher mean score, so the transition 1→4 is more likely than transition 1→2.
 
 We can repeat this process for all possible transitions to build a matrix where larger numbers indicate more likely transitions.
 

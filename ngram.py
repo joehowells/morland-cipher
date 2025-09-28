@@ -1,16 +1,12 @@
-import collections
-import functools
+import array
 import itertools
 import math
 import string
-import sys
 from collections import deque
-from typing import Iterable, Iterator, TypeVar
+from typing import Iterable, Iterator, Mapping, Sequence, TypeVar
 
 type NGram = tuple[str, ...]
 T = TypeVar("T")
-
-WORD_LIST = sys.argv[1]
 
 
 def sliding_window(iterable: Iterable[T], n: int) -> Iterator[tuple[T, ...]]:
@@ -24,45 +20,65 @@ def sliding_window(iterable: Iterable[T], n: int) -> Iterator[tuple[T, ...]]:
         yield tuple(window)
 
 
-@functools.cache
-def log_expected(n: int) -> dict[NGram, float]:
-    log_obs = log_observed(1)
-    all_ngrams = itertools.product(string.ascii_uppercase, repeat=n)
+class NGramTable(Mapping[NGram, float]):
+    def __init__(self, n: int, data: Sequence[float]) -> None:
+        if len(data) != 26**n:
+            raise ValueError(f"data must have 26**{n} elements")
 
-    result: dict[NGram, float] = {}
-    for ngram in all_ngrams:
-        result[ngram] = sum(log_obs.get((ch,), 0.0) for ch in ngram)
+        self._n = n
+        self._data = data
 
-    return result
+    def __len__(self) -> int:
+        return 26**self._n
+
+    def __getitem__(self, key: NGram) -> float:
+        return self._data[encode(key)]
+
+    def __iter__(self) -> Iterator[NGram]:
+        return itertools.product(string.ascii_uppercase, repeat=self._n)
 
 
-@functools.cache
-def log_observed(n: int) -> dict[NGram, float]:
-    counts = ngram_count(n)
-    log_total = math.log(sum(counts.values()))
+def encode(key: NGram) -> int:
+    idx = 0
+    for c in key:
+        idx = idx * 26 + (ord(c) - 65)
 
-    return {
-        ngram: (math.log(ngram_count) - log_total)
-        for ngram, ngram_count in counts.items()
+    return idx
+
+
+def load_tables(seq: Iterable[str]) -> dict[int, NGramTable]:
+    gram_count: dict[int, array.array] = {
+        n: array.array("Q", (0 for _ in range(26**n))) for n in (1, 2, 3, 5)
     }
 
-
-@functools.cache
-def log_observed_expected(n: int) -> dict[NGram, float]:
-    log_obs = log_observed(n)
-    log_exp = log_expected(n)
-
-    return {ngram: (log_obs[ngram] - log_exp[ngram]) for ngram in log_obs}
-
-
-@functools.cache
-def ngram_count(n: int) -> dict[NGram, int]:
-    result = collections.defaultdict(int)
-
-    with open(WORD_LIST, encoding="utf-8") as file:
-        for line in file:
-            word, count = line.split(maxsplit=1)
+    for line in seq:
+        word, count_str = line.split(maxsplit=1)
+        count = int(count_str)
+        for n, table in gram_count.items():
             for ngram in sliding_window(word, n):
-                result[ngram] += int(count)
+                table[encode(ngram)] += count
 
-    return dict(result)
+    log_totals = {n: math.log(sum(table)) for n, table in gram_count.items()}
+
+    log_observed_1 = array.array(
+        "f", (math.log(x) - log_totals[1] if x > 0 else math.nan for x in gram_count[1])
+    )
+
+    log_observed_expected: dict[int, array.array] = {}
+    for n, table in gram_count.items():
+        if n == 1:
+            continue
+
+        all_indices = itertools.product(range(26), repeat=n)
+
+        values = (
+            (
+                math.log(x) - log_totals[n] - sum(log_observed_1[ch] for ch in gram)
+                if x > 0
+                else math.nan
+            )
+            for x, gram in zip(table, all_indices)
+        )
+        log_observed_expected[n] = array.array("f", values)
+
+    return {n: NGramTable(n, log_observed_expected[n]) for n in log_observed_expected}

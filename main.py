@@ -1,19 +1,21 @@
+import argparse
 import itertools
 import json
+import math
 import re
-import sys
 from concurrent.futures import ProcessPoolExecutor, as_completed
+from dataclasses import dataclass
 from itertools import pairwise
 from operator import itemgetter
 from pathlib import Path
-from typing import Sequence, TypedDict, TypeVar, cast
+from typing import Sequence, TypedDict
 
 from ortools.constraint_solver import pywrapcp, routing_enums_pb2
 
 from decrypt import decrypt
-from ngram import log_observed_expected, sliding_window
+from ngram import NGramTable, load_tables, sliding_window
 
-T = TypeVar("T")
+DATA_PATH = Path(__file__).parent.joinpath("data/word-list")
 
 
 class Result(TypedDict):
@@ -28,15 +30,14 @@ class Result(TypedDict):
     plaintokScore: float
 
 
-CIPHERTEXT = cast(list[str], re.findall(r"\S+", Path(sys.argv[2]).read_text()))
-TOKENS = [
-    (
-        x.group(1).upper()
-        if (x := re.match(r"^([A-Za-z])[^A-Za-z]*$", c)) is not None
-        else "_"
-    )
-    for c in CIPHERTEXT
-]
+@dataclass
+class Context:
+    ciphertext: list[str]
+    tables: dict[int, NGramTable]
+    tokens: list[str]
+
+
+context: Context | None = None
 
 
 def find_best_key(
@@ -62,8 +63,11 @@ def score_column_pair(
     i: int,
     j: int,
     alternate: bool = False,
-):
-    log_obs_exp = log_observed_expected(2)
+) -> float:
+    global context
+    assert context is not None
+
+    log_obs_exp = context.tables[2]
 
     xs = text[i::num_columns]
     ys = text[j::num_columns]
@@ -75,20 +79,25 @@ def score_column_pair(
     count = 0
     for x, y in zip(xs, ys):
         if (x, y) in log_obs_exp:
-            total += log_obs_exp[x, y]
-            count += 1
+            value = log_obs_exp[x, y]
+            if not math.isnan(value):
+                total += value
+                count += 1
 
-    return total / count if count > 0 else 0
+    return total / count if count > 0 else 0.0
 
 
 def score_sequence(text: Sequence[str], m: int) -> float:
+    global context
+    assert context is not None
+
     total = 0.0
     for n in (3, 5):
-        log_obs_exp = log_observed_expected(n)
-
+        log_obs_exp = context.tables[n]
         for ngram in sliding_window(text, n):
-            if ngram in log_obs_exp:
-                total += log_obs_exp[ngram]
+            value = log_obs_exp[ngram]
+            if not math.isnan(value):
+                total += value
 
     return total / m / 2
 
@@ -131,16 +140,20 @@ def solve_tsp(cost: dict[tuple[int, int], int], num_columns: int) -> list[int]:
 
 
 def main() -> None:
+    args = parse_args()
+
+    ciphertext = Path(args.ciphertext).read_text().strip().split()
+
     tasks = [
         (key_size, shift)
         for key_size in range(2, 35)
         for shift in range(key_size + 1)
-        if (len(TOKENS) - shift) // key_size > 0
+        if (len(ciphertext) - shift) // key_size > 0
     ]
     total = len(tasks)
 
     result_list: list[Result] = []
-    with ProcessPoolExecutor() as exe:
+    with ProcessPoolExecutor(initializer=init_worker, initargs=(args,)) as exe:
         futures = [exe.submit(worker, key_size, shift) for key_size, shift in tasks]
 
         for i, future in enumerate(as_completed(futures), 1):
@@ -148,7 +161,7 @@ def main() -> None:
             result_list.extend(future.result())
 
     result_list.sort(key=itemgetter("plaintokScore"), reverse=True)
-    path = Path.cwd() / Path(sys.argv[2]).with_suffix(".json").name
+    path = Path.cwd() / args.ciphertext.with_suffix(".json").name
     path.write_text(
         json.dumps(
             result_list,
@@ -156,13 +169,43 @@ def main() -> None:
             sort_keys=True,
         )
     )
+    print(f"Results saved to {path.name}")
+
+
+def init_worker(args: argparse.Namespace) -> None:
+    global context
+    assert context is None
+
+    with open(args.wordlist, encoding="utf-8") as file:
+        tables = load_tables(file)
+
+    with open(args.ciphertext, encoding="utf-8") as file:
+        ciphertext = file.read().strip().split()
+
+    tokens = [
+        (
+            x.group(1).upper()
+            if (x := re.match(r"^([A-Za-z])[^A-Za-z]*$", c)) is not None
+            else "_"
+        )
+        for c in ciphertext
+    ]
+
+    context = Context(
+        ciphertext=ciphertext,
+        tables=tables,
+        tokens=tokens,
+    )
 
 
 def worker(num_cols: int, num_nulls: int) -> list[Result]:
-    num_rows = (len(TOKENS) - num_nulls) // (num_cols)
+    global context
+    assert context is not None
+
+    num_rows = (len(context.tokens) - num_nulls) // (num_cols)
 
     text2 = [
-        TOKENS[col * num_rows + row + num_nulls]
+        context.tokens[col * num_rows + row + num_nulls]
         for row in range(num_rows)
         for col in range(num_cols)
     ]
@@ -184,13 +227,13 @@ def worker(num_cols: int, num_nulls: int) -> list[Result]:
                 p = list(range(num_cols))
 
         plaintext = decrypt(
-            CIPHERTEXT[num_nulls:],
+            context.ciphertext[num_nulls:],
             key=p,
             method=method,
         )
 
         plaintok = decrypt(
-            TOKENS[num_nulls:],
+            context.tokens[num_nulls:],
             key=p,
             method=method,
         )
@@ -205,11 +248,28 @@ def worker(num_cols: int, num_nulls: int) -> list[Result]:
                 "numNulls": num_nulls,
                 "plaintext": "".join(plaintext),
                 "plaintok": "".join(plaintok),
-                "plaintokScore": score_sequence(plaintok, len(TOKENS)),
+                "plaintokScore": score_sequence(plaintok, len(context.tokens)),
             }
         )
 
     return result
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "ciphertext",
+        type=Path,
+        help="path to the ciphertext",
+    )
+    parser.add_argument(
+        "-w",
+        "--wordlist",
+        default=Path(__file__).parent / "data/word-list/eng-gb.txt",
+        type=Path,
+        help="path to the word list",
+    )
+    return parser.parse_args()
 
 
 if __name__ == "__main__":
