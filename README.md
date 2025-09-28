@@ -22,20 +22,28 @@ cd morland-cipher
 pip install -r requirements.txt
 ```
 
-Note: This project was developed in Python 3.13. Older versions may work but have not been checked.
+**Note:** This project was developed in Python 3.13. Older versions may work but have not been checked.
 
 ## Usage
 
-Run the main script from the shell to decrypt the provided ciphertext using the provided word list:
+Run the main script to recover likely plaintexts from a ciphertext file:
 
 ```bash
-python main.py [-h] [-w WORDLIST] ciphertext
+python main.py [-h] [-s {routing,cp-sat}] [-w WORDLIST] ciphertext
 ```
 
-- `WORDLIST`: Path to a word-frequency list (default `data/word-list/eng-gb.txt`).
-- `ciphertext`: Path to a ciphertext file (e.g., `data/ciphertext/morland-page01.txt`). Tokens in the ciphertext file should be separated by spaces to detect multi-character tokens. Line breaks are treated as spaces but otherwise do not matter.
+- `-s {routing,cp-sat}`: Select the TSP solver (default: `routing`)
+  - `routing`: OR-Tools Routing Library. Fast, but approximate.
+  - `cp-sat`: CP-SAT. Slower, but more thorough.
+- `-w WORDLIST`: Path to a word-frequency list (default: `data/word-list/eng-gb.txt`).
+- `ciphertext`: Path to the ciphertext file (e.g., `data/ciphertext/morland-page01.txt`).
 
-## Example
+Notes on ciphertext format:
+
+- Tokens must be separated by spaces to detect multi-character tokens.
+- Line breaks are treated as spaces and otherwise ignored.
+
+## Minimal Example
 
 ```bash
 python main.py data/ciphertext/morland-page01.txt
@@ -217,7 +225,7 @@ Now that we have an approach for determining the most likely key for each (numbe
 
 ## Bibliography
 
-- Furnon, Vincent, and Laurent Perron. *OR-Tools Routing Library*. Version 9.14. Google, June 19, 2025. <https://developers.google.com/optimization/routing/>.
+- Furnon, Vincent, and Laurent Perron. *OR-Tools*. Version 9.14. Google, June 19, 2025. <https://developers.google.com/optimization/routing/>.
 - Gaines, Helen Fouché. *Elementary Cryptanalysis*. Boston: American Photographic Publishing Co., 1939. Project Gutenberg, 2025. <https://www.gutenberg.org/ebooks/75074>.
 - Michel, Jean‑Baptiste, Yuan Kui Shen, Aviva Presser Aiden, et al. "Quantitative Analysis of Culture Using Millions of Digitized Books." *Science* 331, no. 6014 (2011): 176–82. <https://doi.org/10.1126/science.1199644>.
 - Morland, Sir Samuel. *A New Method of Cryptography*. 1666. Early English Books, 1641–1700. Internet Archive. Accessed September 21, 2025. <https://archive.org/details/bim_early-english-books-1641-1700_a-new-method-of-cryptogr_morland-sir-samuel_1666/>.
