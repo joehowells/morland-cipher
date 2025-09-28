@@ -98,9 +98,10 @@ def score_sequence(text: Sequence[str], m: int) -> float:
     for n in (3, 5):
         log_obs_exp = context.tables[n]
         for ngram in sliding_window(text, n):
-            value = log_obs_exp[ngram]
-            if not math.isnan(value):
-                total += value
+            if ngram in log_obs_exp:
+                value = log_obs_exp[ngram]
+                if not math.isnan(value):
+                    total += value
 
     return total / m / 2
 
