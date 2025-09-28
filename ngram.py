@@ -32,7 +32,10 @@ class NGramTable(Mapping[NGram, float]):
         return 26**self._n
 
     def __getitem__(self, key: NGram) -> float:
-        return self._data[encode(key)]
+        try:
+            return self._data[encode(key)]
+        except IndexError as e:
+            raise KeyError(key) from e
 
     def __iter__(self) -> Iterator[NGram]:
         return itertools.product(string.ascii_uppercase, repeat=self._n)
