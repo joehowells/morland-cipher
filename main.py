@@ -12,7 +12,7 @@ from typing import Sequence, TypedDict
 
 from decrypt import decrypt
 from ngram import NGramTable, load_tables, sliding_window
-from solvers import solve_tsp
+from solvers import solve_tsp_routing
 
 DATA_PATH = Path(__file__).parent.joinpath("data/word-list")
 
@@ -49,7 +49,7 @@ def find_best_key(
     }
     max_score = max(all_score.values())
     cost = {key: -int((val - max_score) * 1_000) for key, val in all_score.items()}
-    path = solve_tsp(cost, num_columns)
+    path = solve_tsp_routing(cost, num_columns)
 
     rows = list(pairwise(path))
     mean_score = sum(all_score[i, j] for i, j in rows) / len(rows)

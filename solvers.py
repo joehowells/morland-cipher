@@ -1,7 +1,7 @@
 from ortools.constraint_solver import pywrapcp, routing_enums_pb2
 
 
-def solve_tsp(cost: dict[tuple[int, int], int], num_columns: int) -> list[int]:
+def solve_tsp_routing(cost: dict[tuple[int, int], int], num_columns: int) -> list[int]:
     n = num_columns
 
     manager = pywrapcp.RoutingIndexManager(n + 1, 1, n)
