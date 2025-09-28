@@ -149,7 +149,7 @@ def main() -> None:
     total = len(tasks)
 
     result_list: list[Result] = []
-    with ProcessPoolExecutor() as exe:
+    with ProcessPoolExecutor(initializer=init_worker, initargs=(sys.argv[1],)) as exe:
         futures = [exe.submit(worker, key_size, shift) for key_size, shift in tasks]
 
         for i, future in enumerate(as_completed(futures), 1):
@@ -167,13 +167,14 @@ def main() -> None:
     )
 
 
-def worker(num_cols: int, num_nulls: int) -> list[Result]:
+def init_worker(path: str) -> None:
     global tables
+    assert tables is None
+    with open(path, encoding="utf-8") as file:
+        tables = load_tables(file)
 
-    if tables is None:
-        with open(sys.argv[1], encoding="utf-8") as file:
-            tables = load_tables(file)
 
+def worker(num_cols: int, num_nulls: int) -> list[Result]:
     num_rows = (len(TOKENS) - num_nulls) // (num_cols)
 
     text2 = [
