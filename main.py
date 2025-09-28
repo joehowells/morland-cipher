@@ -1,8 +1,8 @@
+import argparse
 import itertools
 import json
 import math
 import re
-import sys
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from dataclasses import dataclass
 from itertools import pairwise
@@ -14,6 +14,8 @@ from ortools.constraint_solver import pywrapcp, routing_enums_pb2
 
 from decrypt import decrypt
 from ngram import NGramTable, load_tables, sliding_window
+
+DATA_PATH = Path(__file__).parent.joinpath("data/word-list")
 
 
 class Result(TypedDict):
@@ -138,8 +140,9 @@ def solve_tsp(cost: dict[tuple[int, int], int], num_columns: int) -> list[int]:
 
 
 def main() -> None:
-    with open(sys.argv[2], encoding="utf-8") as file:
-        ciphertext = file.read().strip().split()
+    args = parse_args()
+
+    ciphertext = Path(args.ciphertext).read_text().strip().split()
 
     tasks = [
         (key_size, shift)
@@ -150,9 +153,7 @@ def main() -> None:
     total = len(tasks)
 
     result_list: list[Result] = []
-    with ProcessPoolExecutor(
-        initializer=init_worker, initargs=(sys.argv[1], sys.argv[2])
-    ) as exe:
+    with ProcessPoolExecutor(initializer=init_worker, initargs=(args,)) as exe:
         futures = [exe.submit(worker, key_size, shift) for key_size, shift in tasks]
 
         for i, future in enumerate(as_completed(futures), 1):
@@ -160,7 +161,7 @@ def main() -> None:
             result_list.extend(future.result())
 
     result_list.sort(key=itemgetter("plaintokScore"), reverse=True)
-    path = Path.cwd() / Path(sys.argv[2]).with_suffix(".json").name
+    path = Path.cwd() / args.ciphertext.with_suffix(".json").name
     path.write_text(
         json.dumps(
             result_list,
@@ -170,14 +171,14 @@ def main() -> None:
     )
 
 
-def init_worker(word_list_path: str, ciphertext_path: str) -> None:
+def init_worker(args: argparse.Namespace) -> None:
     global context
     assert context is None
 
-    with open(word_list_path, encoding="utf-8") as file:
+    with open(args.wordlist, encoding="utf-8") as file:
         tables = load_tables(file)
 
-    with open(ciphertext_path, encoding="utf-8") as file:
+    with open(args.ciphertext, encoding="utf-8") as file:
         ciphertext = file.read().strip().split()
 
     tokens = [
@@ -251,6 +252,23 @@ def worker(num_cols: int, num_nulls: int) -> list[Result]:
         )
 
     return result
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "ciphertext",
+        type=Path,
+        help="path to the ciphertext",
+    )
+    parser.add_argument(
+        "-w",
+        "--wordlist",
+        default=Path(__file__).parent / "data/word-list/eng-gb.txt",
+        type=Path,
+        help="path to the word list",
+    )
+    return parser.parse_args()
 
 
 if __name__ == "__main__":
