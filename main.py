@@ -1,19 +1,18 @@
 import itertools
 import json
+import math
 import re
 import sys
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from itertools import pairwise
 from operator import itemgetter
 from pathlib import Path
-from typing import Sequence, TypedDict, TypeVar, cast
+from typing import Sequence, TypedDict, cast
 
 from ortools.constraint_solver import pywrapcp, routing_enums_pb2
 
 from decrypt import decrypt
-from ngram import log_observed_expected, sliding_window
-
-T = TypeVar("T")
+from ngram import NGramTable, load_tables, sliding_window
 
 
 class Result(TypedDict):
@@ -27,6 +26,8 @@ class Result(TypedDict):
     plaintok: str
     plaintokScore: float
 
+
+tables: dict[int, NGramTable] | None = None
 
 CIPHERTEXT = cast(list[str], re.findall(r"\S+", Path(sys.argv[2]).read_text()))
 TOKENS = [
@@ -63,7 +64,10 @@ def score_column_pair(
     j: int,
     alternate: bool = False,
 ):
-    log_obs_exp = log_observed_expected(2)
+    global tables
+    assert tables is not None
+
+    log_obs_exp = tables[2]
 
     xs = text[i::num_columns]
     ys = text[j::num_columns]
@@ -75,20 +79,25 @@ def score_column_pair(
     count = 0
     for x, y in zip(xs, ys):
         if (x, y) in log_obs_exp:
-            total += log_obs_exp[x, y]
-            count += 1
+            value = log_obs_exp[x, y]
+            if not math.isnan(value):
+                total += value
+                count += 1
 
     return total / count if count > 0 else 0
 
 
 def score_sequence(text: Sequence[str], m: int) -> float:
+    global tables
+    assert tables is not None
+
     total = 0.0
     for n in (3, 5):
-        log_obs_exp = log_observed_expected(n)
-
+        log_obs_exp = tables[n]
         for ngram in sliding_window(text, n):
-            if ngram in log_obs_exp:
-                total += log_obs_exp[ngram]
+            value = log_obs_exp[ngram]
+            if not math.isnan(value):
+                total += value
 
     return total / m / 2
 
@@ -159,6 +168,12 @@ def main() -> None:
 
 
 def worker(num_cols: int, num_nulls: int) -> list[Result]:
+    global tables
+
+    if tables is None:
+        with open(sys.argv[1], encoding="utf-8") as file:
+            tables = load_tables(file)
+
     num_rows = (len(TOKENS) - num_nulls) // (num_cols)
 
     text2 = [
