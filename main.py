@@ -63,7 +63,7 @@ def score_column_pair(
     i: int,
     j: int,
     alternate: bool = False,
-):
+) -> float:
     global context
     assert context is not None
 
@@ -84,7 +84,7 @@ def score_column_pair(
                 total += value
                 count += 1
 
-    return total / count if count > 0 else 0
+    return total / count if count > 0 else 0.0
 
 
 def score_sequence(text: Sequence[str], m: int) -> float:
