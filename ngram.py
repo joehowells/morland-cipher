@@ -38,7 +38,14 @@ def log_expected(n: int) -> dict[NGram, float]:
 
 @functools.cache
 def log_observed(n: int) -> dict[NGram, float]:
-    counts = ngram_count(n)
+    counts = collections.defaultdict(int)
+
+    with open(WORD_LIST, encoding="utf-8") as file:
+        for line in file:
+            word, count = line.split(maxsplit=1)
+            for ngram in sliding_window(word, n):
+                counts[ngram] += int(count)
+
     log_total = math.log(sum(counts.values()))
 
     return {
@@ -53,16 +60,3 @@ def log_observed_expected(n: int) -> dict[NGram, float]:
     log_exp = log_expected(n)
 
     return {ngram: (log_obs[ngram] - log_exp[ngram]) for ngram in log_obs}
-
-
-@functools.cache
-def ngram_count(n: int) -> dict[NGram, int]:
-    result = collections.defaultdict(int)
-
-    with open(WORD_LIST, encoding="utf-8") as file:
-        for line in file:
-            word, count = line.split(maxsplit=1)
-            for ngram in sliding_window(word, n):
-                result[ngram] += int(count)
-
-    return dict(result)
