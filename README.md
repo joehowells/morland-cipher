@@ -184,16 +184,16 @@ This is a variant of the Travelling Salesperson Problem (TSP), which can be solv
 This yields the following path:
 
 ```text
-6 → 5   0.389
-5 → 9   0.428
-9 → 1   0.621
-1 → 4   0.435
-4 → 7   0.543
-7 → 2   0.448
-2 → 8   0.428
-8 → 3   0.095
------  ------
-Mean    0.376
+6 -> 5   0.389
+5 -> 9   0.428
+9 -> 1   0.621
+1 -> 4   0.435
+4 -> 7   0.543
+7 -> 2   0.448
+2 -> 8   0.428
+8 -> 3   0.095
+------  ------
+Mean     0.376
 ```
 
 Rearranging the columns gives us the grid:
