@@ -2,15 +2,13 @@
 
 Breaking Sir Samuel Morland's New Method of Cryptography
 
-This project is inspired by the National Archives blog post "[Hidden in plain sight: an undeciphered letter from Louis XIV's France](https://www.nationalarchives.gov.uk/explore-the-collection/the-collection-blog/undeciphered-letter-from-louis-xivs-france/)". The post highlights an enciphered message from 1670 that William Perwich, an English diplomat, sent to Lord Arlington, a close advisor to Charles II.
+This project is inspired by the National Archives blog post "[Hidden in plain sight: an undeciphered letter from Louis XIV's France](https://www.nationalarchives.gov.uk/explore-the-collection/the-collection-blog/undeciphered-letter-from-louis-xivs-france/)". That post highlights an enciphered message from 1670 sent by William Perwich, an English diplomat, to Lord Arlington, a close advisor to Charles II.
 
-The method of encryption is not known, but it could be one of the methods published by Sir Samuel Morland in his paper "[A New Method of Cryptography](https://archive.org/details/bim_early-english-books-1641-1700_a-new-method-of-cryptogr_morland-sir-samuel_1666)", a few years earlier in 1666.
+At the time of the blog post, the specific cipher used was unknown. It was thought that the method might have been one of those described by Sir Samuel Morland in his paper "[A New Method of Cryptography](https://archive.org/details/bim_early-english-books-1641-1700_a-new-method-of-cryptogr_morland-sir-samuel_1666)", published a few years earlier in 1666. Morland presented several approaches, focusing in particular on columnar transposition using a rectangular grid.
 
-While Morland also presents methods that utilise non-rectangular patterns, he focuses on methods that are based on columnar transposition of a rectangular grid.
+To illustrate the difficulty of decrypting a message without the key, Morland noted that encrypting 81 characters on a 3x27 grid yields 27! (more than ten octillion) possible keys.
 
-To illustrate the difficulty of deciphering the message without the key, Morland correctly states that encrypting a message of 81 characters on a 3x27 grid results in 27! (more than ten octillion) possible keys.
-
-However, by using techniques developed since 1666, we can break Morland's method and possibly decrypt Perwich's message.
+The blog post about the Perwich letter drew me to this topic and inspired the work here. Since then, the letter has been solved elsewhere by independent researchers ([part 1](https://cryptiana.blogspot.com/2025/09/solution-of-william-perwichs.html), [part 2](https://cryptiana.blogspot.com/2025/09/solution-of-william-perwichs_29.html)). This project was not involved with their work. Instead, it explores Morland's methods and demonstrates how modern techniques can be applied to break them.
 
 ## Installation
 
@@ -184,16 +182,16 @@ This is a variant of the Travelling Salesperson Problem (TSP), which can be solv
 This yields the following path:
 
 ```text
-6 → 5   0.389
-5 → 9   0.428
-9 → 1   0.621
-1 → 4   0.435
-4 → 7   0.543
-7 → 2   0.448
-2 → 8   0.428
-8 → 3   0.095
------  ------
-Mean    0.376
+6 -> 5   0.389
+5 -> 9   0.428
+9 -> 1   0.621
+1 -> 4   0.435
+4 -> 7   0.543
+7 -> 2   0.448
+2 -> 8   0.428
+8 -> 3   0.095
+------  ------
+Mean     0.376
 ```
 
 Rearranging the columns gives us the grid:
@@ -230,6 +228,8 @@ Now that we have an approach for determining the most likely key for each (numbe
 - Michel, Jean‑Baptiste, Yuan Kui Shen, Aviva Presser Aiden, et al. "Quantitative Analysis of Culture Using Millions of Digitized Books." *Science* 331, no. 6014 (2011): 176–82. <https://doi.org/10.1126/science.1199644>.
 - Morland, Sir Samuel. *A New Method of Cryptography*. 1666. Early English Books, 1641–1700. Internet Archive. Accessed September 21, 2025. <https://archive.org/details/bim_early-english-books-1641-1700_a-new-method-of-cryptogr_morland-sir-samuel_1666/>.
 - Selman, Ruth. "Hidden in Plain Sight: An Undeciphered Letter from Louis XIV's France." *The Collection Blog*. August 4, 2025. Accessed September 21, 2025. <https://www.nationalarchives.gov.uk/explore-the-collection/the-collection-blog/undeciphered-letter-from-louis-xivs-france/>.
+- Tomokiyo, S. "Solution of William Perwich's Transposition Cipher (1/2)." *Cryptiana Discussion Forum*. September 29, 2025. Accessed September 30, 2025. <https://cryptiana.blogspot.com/2025/09/solution-of-william-perwichs.html>.
+- Tomokiyo, S. "Solution of William Perwich's Transposition Cipher (2/2)." *Cryptiana Discussion Forum*. September 29, 2025. Accessed September 30, 2025. <https://cryptiana.blogspot.com/2025/09/solution-of-william-perwichs_29.html>.
 
 ## License
 
